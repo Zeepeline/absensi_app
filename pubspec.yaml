@@ -1,0 +1,59 @@
+name: absensi_app
+description: "A new Flutter project."
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.0
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  google_maps_flutter: ^2.12.1
+  get: ^4.7.2
+  geolocator: ^11.0.0
+  gap: ^3.0.1
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  intl: ^0.20.2
+  path_provider: ^2.1.5
+  remixicon: ^1.4.1
+  geocoding: ^3.0.0
+  shared_preferences: ^2.5.3
+  loading_animation_widget: ^1.3.0
+  flutter_svg: ^2.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  build_runner: ^2.1.7
+  hive_generator: ^1.1.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/vectors/
+  fonts:
+    - family: Sora
+      fonts:
+        - asset: assets/fonts/Sora-Light.ttf
+        - asset: assets/fonts/Sora-Regular.ttf
+        - asset: assets/fonts/Sora-SemiBold.ttf
+        - asset: assets/fonts/Sora-Thin.ttf
+        - asset: assets/fonts/Sora-Bold.ttf
+        - asset: assets/fonts/Sora-ExtraBold.ttf
+        - asset: assets/fonts/Sora-ExtraLight.ttf
+    - family: Satoshi
+      fonts:
+        - asset: assets/fonts/Satoshi-LightItalic.otf
+        - asset: assets/fonts/Satoshi-Medium.otf
+        - asset: assets/fonts/Satoshi-MediumItalic.otf
+        - asset: assets/fonts/Satoshi-Regular.otf
+        - asset: assets/fonts/Satoshi-Black.otf
+        - asset: assets/fonts/Satoshi-BlackItalic.otf
+        - asset: assets/fonts/Satoshi-Bold.otf
+        - asset: assets/fonts/Satoshi-BoldItalic.otf
+        - asset: assets/fonts/Satoshi-Italic.otf
+        - asset: assets/fonts/Satoshi-Light.otf
