@@ -1,13 +1,22 @@
+import 'dart:developer';
+
 import 'package:absensi_app/features/locations/models/location_model.dart';
+import 'package:absensi_app/features/locations/repositories/locations_repository.dart';
+import 'package:absensi_app/modules/maps/widgets/add_new_place_modal.dart';
 import 'package:absensi_app/shared/cores/constants/app_text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:remixicon/remixicon.dart';
 
 void showLocationInformationBottomSheet(
     {required BuildContext context,
     required Location location,
+    required int index,
+    required LocationRepository locationRepository,
+    required VoidCallback onEdit,
     required VoidCallback onDelete,
     required VoidCallback onSetMain}) {
   Get.bottomSheet(
@@ -22,10 +31,45 @@ void showLocationInformationBottomSheet(
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Informasi Lokasi',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    Row(
+                      children: [
+                        Text(
+                          'Informasi Lokasi',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                            icon: const Icon(Remix.edit_line),
+                            onPressed: () {
+                              showAddLocationBottomSheet(
+                                  LatLng(location.latitude, location.longitude),
+                                  (name, latLng, checkIn, checkOut) {
+                                Get.back();
+
+                                log('time : ${location.timestamp}');
+
+                                locationRepository
+                                    .editLocation(
+                                        Location(
+                                          name: name,
+                                          latitude: latLng.latitude,
+                                          longitude: latLng.longitude,
+                                          timestamp: location.timestamp,
+                                          address: location.address,
+                                          checkInLimit: checkIn,
+                                          checkOutLimit: checkOut,
+                                        ),
+                                        index)
+                                    .then(
+                                  (value) {
+                                    onEdit();
+                                  },
+                                );
+                                // update logic here
+                              }, initialData: location);
+                            }),
+                      ],
                     ),
                     const Gap(16),
                     Row(

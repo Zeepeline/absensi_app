@@ -1,9 +1,14 @@
+import 'dart:developer';
+
 import 'package:absensi_app/features/locations/models/location_model.dart';
+import 'package:absensi_app/shared/cores/utils/prefs_utils.dart';
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
 class LocationRepository {
   // Nama box tempat lokasi disimpan
   static const String _boxName = 'locations_box';
+  final prefs = Get.find<PrefsService>();
 
   // Fungsi untuk menyimpan lokasi ke Hive
   Future<void> saveLocation(Location location) async {
@@ -11,7 +16,7 @@ class LocationRepository {
     var box = await Hive.openBox<Location>(_boxName);
 
     // Menyimpan lokasi
-    await box.add(location);
+    await box.put(location.timestamp.toString(), location);
 
     // Menutup box
     await box.close();
@@ -21,6 +26,10 @@ class LocationRepository {
   Future<List<Location>> getLocations() async {
     var box = await Hive.openBox<Location>(_boxName);
     List<Location> locations = box.values.toList();
+
+    if (prefs.currentLocationId == null) {
+      prefs.setCurrentLocationId(locations[0].timestamp.toString());
+    }
     await box.close();
     return locations;
   }
@@ -29,6 +38,19 @@ class LocationRepository {
   Future<void> deleteLocation(int index) async {
     var box = await Hive.openBox<Location>(_boxName);
     await box.deleteAt(index);
+    await box.close();
+  }
+
+  // Fungsi untuk edit lokasi
+  Future<void> editLocation(Location location, int index) async {
+    var box = await Hive.openBox<Location>(_boxName);
+
+    if (index != -1) {
+      await box.putAt(index, location);
+    } else {
+      log('Data tidak ditemukan, tidak bisa edit.');
+    }
+
     await box.close();
   }
 

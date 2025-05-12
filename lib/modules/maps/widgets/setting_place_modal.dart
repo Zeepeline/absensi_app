@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:absensi_app/features/locations/models/location_model.dart';
 import 'package:absensi_app/features/locations/repositories/locations_repository.dart';
 import 'package:absensi_app/shared/cores/constants/app_text_style.dart';
@@ -14,6 +16,8 @@ void showLocationList({
   required VoidCallback onDelete,
   required VoidCallback onSetMain,
 }) {
+  log('time : ${locations[0].timestamp}');
+
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,

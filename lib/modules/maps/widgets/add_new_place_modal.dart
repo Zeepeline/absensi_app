@@ -1,3 +1,4 @@
+import 'package:absensi_app/features/locations/models/location_model.dart';
 import 'package:absensi_app/shared/cores/constants/app_text_style.dart';
 import 'package:absensi_app/shared/cores/services/location_controller.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +25,6 @@ class AddLocationController extends GetxController {
 
   void validateForm() {
     isFormValid.value = nameController.text.trim().isNotEmpty &&
-        notesController.text.trim().isNotEmpty &&
         checkInLimit.value != null &&
         checkOutLimit.value != null;
   }
@@ -75,20 +75,40 @@ String formatTime(TimeOfDay? time) {
 
 Future<void> showAddLocationBottomSheet(
   LatLng latLng,
-  void Function(String name, LatLng latLng, String notes, DateTime checkInLimit,
+  void Function(String name, LatLng latLng, DateTime checkInLimit,
           DateTime checkOutLimit)
-      onSave,
-) async {
+      onSave, {
+  Location? initialData,
+}) async {
   final controller = Get.put(AddLocationController());
-  final locationController = Get.find<LocationController>();
+  // final locationController = Get.find<LocationController>();
 
-  locationController
-      .getAddressFromLatLng(latLng.latitude, latLng.longitude)
-      .then(
-    (value) {
+  if (initialData != null) {
+    controller.nameController.text = initialData.name;
+    controller.addressController.text = initialData.address;
+    controller.notesController.text = '';
+
+    controller.checkInLimit.value =
+        TimeOfDay.fromDateTime(initialData.checkInLimit);
+    controller.checkOutLimit.value =
+        TimeOfDay.fromDateTime(initialData.checkOutLimit);
+
+    controller.checkInLimitController.text =
+        formatTime(controller.checkInLimit.value);
+    controller.checkOutLimitController.text =
+        formatTime(controller.checkOutLimit.value);
+
+    controller.checkInDateTime.value = initialData.checkInLimit;
+    controller.checkOutDateTime.value = initialData.checkOutLimit;
+  } else {
+    // Jika bukan edit, isi address dari latlng
+    final locationController = Get.find<LocationController>();
+    locationController
+        .getAddressFromLatLng(latLng.latitude, latLng.longitude)
+        .then((value) {
       controller.addressController.text = value;
-    },
-  );
+    });
+  }
 
   Get.bottomSheet(
     Container(
@@ -101,9 +121,9 @@ Future<void> showAddLocationBottomSheet(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Center(
+            Center(
               child: Text(
-                'Tambah Lokasi Baru',
+                initialData == null ? 'Tambah Lokasi Baru' : 'Ubah Lokasi',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
@@ -178,21 +198,6 @@ Future<void> showAddLocationBottomSheet(
                 ),
               ],
             ),
-            const Gap(16),
-            TextField(
-              controller: controller.notesController,
-              decoration: const InputDecoration(
-                labelText: 'Keterangan',
-                border: OutlineInputBorder(),
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.grey),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue),
-                ),
-              ),
-              style: AppTextStyles.bodyMediumRegular,
-            ),
             Gap(16),
             Row(children: [
               Flexible(
@@ -264,18 +269,15 @@ Future<void> showAddLocationBottomSheet(
                     child: Obx(() => ElevatedButton(
                           onPressed: controller.isFormValid.value
                               ? () {
-                                  final name =
-                                      controller.nameController.text.trim();
-                                  final notes =
-                                      controller.notesController.text.trim();
+                                  final name = controller.nameController.text;
 
                                   onSave(
                                     name,
                                     latLng,
-                                    notes,
                                     controller.checkInDateTime.value,
                                     controller.checkOutDateTime.value,
                                   );
+
                                   controller.clearFields();
                                   Get.back();
                                 }

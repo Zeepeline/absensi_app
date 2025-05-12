@@ -32,11 +32,13 @@ class MapPageState extends State<MapPage> {
   final RxSet<Marker> _markers = <Marker>{}.obs;
   final RxSet<Circle> _circles = <Circle>{}.obs;
   final List<Location> locations = <Location>[].obs;
+  final Rx<LatLng?> centerPinPosition = Rx<LatLng?>(null);
 
   final isAddingNewPin = false.obs;
   final isLoading = false.obs;
 
   Future<void> getLocation() async {
+    // int index = 0;
     locations.clear();
     _circles.clear();
     _markers.clear();
@@ -45,6 +47,8 @@ class MapPageState extends State<MapPage> {
       for (final entry in fetchedLocations.asMap().entries) {
         final index = entry.key;
         final location = entry.value;
+
+        print('ini index : $index');
 
         setState(() {
           _markers.add(Marker(
@@ -57,7 +61,12 @@ class MapPageState extends State<MapPage> {
             onTap: () {
               showLocationInformationBottomSheet(
                 context: context,
+                index: index,
                 location: location,
+                locationRepository: locationRepository,
+                onEdit: () {
+                  getLocation();
+                },
                 onDelete: () {
                   Future.delayed(const Duration(milliseconds: 100));
 
@@ -115,41 +124,38 @@ class MapPageState extends State<MapPage> {
             zoom: 16,
           );
 
-          return GoogleMap(
-            mapType: MapType.normal,
-            initialCameraPosition: cameraPosition,
-            onMapCreated: (GoogleMapController controller) {
-              _controller.complete(controller);
-            },
-            myLocationEnabled: true,
-            markers: _markers,
-            circles: _circles,
-            onTap: (latLng) {
-              if (isAddingNewPin.value) {
-                showAddLocationBottomSheet(latLng,
-                    (name, latLng, notes, checkInLimit, checkOutLimit) {
-                  _addMarker(latLng, name, checkInLimit, checkOutLimit).then(
-                    (value) {
-                      Get.dialog(
-                          const Center(
-                              child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 8,
-                          )),
-                          barrierDismissible: false);
+          return Stack(
+            children: [
+              GoogleMap(
+                mapType: MapType.normal,
+                initialCameraPosition: cameraPosition,
+                onMapCreated: (GoogleMapController controller) {
+                  _controller.complete(controller);
+                },
+                myLocationEnabled: true,
+                zoomControlsEnabled: false,
+                markers: _markers,
+                circles: _circles,
+                onTap: (latLng) {
+                  if (isAddingNewPin.value) {
+                  } else {}
+                },
+                onCameraMove: (position) {
+                  if (isAddingNewPin.value) {
+                    centerPinPosition.value = position.target;
+                  }
+                },
 
-                      // Tutup dialog setelah 3 detik
-                      Future.delayed(const Duration(seconds: 1), () {
-                        if (Get.isDialogOpen ?? false) {
-                          Get.back();
-                        }
-                      });
-                    },
-                  );
-                });
-                Get.find<HomePageController>().refresh();
-              } else {}
-            },
+                // Tampilkan pin di tengah layar kalau sedang menambah lokasi
+              ),
+              if (isAddingNewPin.value)
+                Center(
+                  child: Image.asset(
+                    'assets/images/pin.png',
+                    width: 60,
+                  ),
+                ),
+            ],
           );
         }),
       ),
@@ -200,18 +206,64 @@ class MapPageState extends State<MapPage> {
             ),
           ),
           Gap(14),
-          FloatingActionButton(
-            heroTag: 'add',
-            onPressed: () {
-              isAddingNewPin.value = !isAddingNewPin.value;
-            },
-            backgroundColor: Colors.blue,
-            child: Obx(
-              () => Icon(
-                isAddingNewPin.value ? Icons.cancel : Icons.add_location_alt,
-                color: Colors.white,
+          Row(
+            children: [
+              Obx(
+                () => FloatingActionButton(
+                  heroTag: 'add',
+                  onPressed: () {
+                    isAddingNewPin.value = !isAddingNewPin.value;
+                  },
+                  backgroundColor:
+                      isAddingNewPin.value ? Colors.red : Colors.blue,
+                  child: Icon(
+                    isAddingNewPin.value
+                        ? Icons.cancel
+                        : Icons.add_location_alt,
+                    color: Colors.white,
+                  ),
+                ),
               ),
-            ),
+              Gap(14),
+              Obx(
+                () => isAddingNewPin.value
+                    ? FloatingActionButton(
+                        heroTag: 'add-checklist',
+                        onPressed: () {
+                          showAddLocationBottomSheet(centerPinPosition.value!,
+                              (name, latLng, checkInLimit, checkOutLimit) {
+                            _addMarker(
+                                    latLng, name, checkInLimit, checkOutLimit)
+                                .then(
+                              (value) {
+                                Get.dialog(
+                                    const Center(
+                                        child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 8,
+                                    )),
+                                    barrierDismissible: false);
+
+                                // Tutup dialog setelah 3 detik
+                                Future.delayed(const Duration(seconds: 1), () {
+                                  if (Get.isDialogOpen ?? false) {
+                                    Get.back();
+                                  }
+                                });
+                              },
+                            );
+                          });
+                          Get.find<HomePageController>().refresh();
+                        },
+                        backgroundColor: Colors.green,
+                        child: Icon(
+                          Icons.check_outlined,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const SizedBox(),
+              ),
+            ],
           ),
           Gap(14),
         ],

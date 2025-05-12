@@ -9,6 +9,7 @@ import 'package:gap/gap.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
 
 class InformationDetailCard extends StatelessWidget {
   const InformationDetailCard(
@@ -52,19 +53,34 @@ class InformationDetailCard extends StatelessWidget {
             style: AppTextStyles.bodyMediumBold,
           ),
           Gap(8),
-          Text(
-            'Waktu  : ${DateTime.now().toString().substring(0, 16)}',
-            style: AppTextStyles.bodyMediumBold,
+          Row(
+            children: [
+              SizedBox(
+                width: 120,
+                child: Text(
+                  isCheckIn ? 'Batas Check-In' : 'Mulai Check-Out',
+                  style: AppTextStyles.bodyMediumBold,
+                ),
+              ),
+              Text(
+                isCheckIn
+                    ? ': ${DateFormat.Hm().format(locations[0].checkInLimit)}'
+                    : ': ${DateFormat.Hm().format(locations[0].checkOutLimit)}',
+                style: AppTextStyles.bodyMediumMedium,
+              )
+            ],
           ),
           Gap(8),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Alamat User:',
-                style: AppTextStyles.bodyMediumBold,
+              SizedBox(
+                width: 120,
+                child: Text(
+                  'Alamat User',
+                  style: AppTextStyles.bodyMediumBold,
+                ),
               ),
-              Gap(8),
               FutureBuilder<String>(
                 future: locationController.getAddressFromLatLng(
                     position.latitude, position.longitude),
@@ -77,7 +93,7 @@ class InformationDetailCard extends StatelessWidget {
                     address.value = snapshot.data ?? "Alamat tidak tersedia";
                     return Expanded(
                       child: Text(
-                        snapshot.data ?? "Alamat tidak tersedia",
+                        ': ${snapshot.data}',
                         style: AppTextStyles.bodyMediumRegular,
                       ),
                     );
@@ -90,11 +106,13 @@ class InformationDetailCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Alamat Presensi:',
-                style: AppTextStyles.bodyMediumBold,
+              SizedBox(
+                width: 120,
+                child: Text(
+                  'Alamat Presensi',
+                  style: AppTextStyles.bodyMediumBold,
+                ),
               ),
-              Gap(8),
               FutureBuilder<String>(
                 future: locations.isNotEmpty
                     ? locationController.getAddressFromLatLng(
@@ -110,7 +128,7 @@ class InformationDetailCard extends StatelessWidget {
                   } else {
                     return Expanded(
                       child: Text(
-                        snapshot.data ?? "Alamat tidak tersedia",
+                        ': ${snapshot.data}',
                         style: AppTextStyles.bodyMediumRegular,
                       ),
                     );
@@ -122,12 +140,14 @@ class InformationDetailCard extends StatelessWidget {
           Gap(8),
           Row(
             children: [
-              Text(
-                'Jarak:',
-                style: AppTextStyles.bodyMediumBold,
+              SizedBox(
+                width: 120,
+                child: Text(
+                  'Jarak:',
+                  style: AppTextStyles.bodyMediumBold,
+                ),
               ),
-              Gap(8),
-              Text('${distance.toStringAsFixed(2)} m'),
+              Text(': ${distance.toStringAsFixed(2)} m'),
             ],
           ),
           Gap(8),
