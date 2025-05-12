@@ -1,4 +1,4 @@
-package com.example.absensi_app
+package com.greendragon.absensi_app
 
 import io.flutter.embedding.android.FlutterActivity
 
