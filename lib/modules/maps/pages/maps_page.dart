@@ -48,8 +48,6 @@ class MapPageState extends State<MapPage> {
         final index = entry.key;
         final location = entry.value;
 
-        print('ini index : $index');
-
         setState(() {
           _markers.add(Marker(
             markerId: MarkerId('${location.name}-${location.timestamp}'),
@@ -277,13 +275,23 @@ class MapPageState extends State<MapPage> {
 
     var address = await locationController.getAddressFromLatLng(
         latLng.latitude, latLng.longitude);
+    DateTime now = DateTime.now();
+    DateTime trimmed = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      now.hour,
+      now.minute,
+      now.second,
+      now.millisecond,
+    );
 
     // Save location to database
     locationRepository.saveLocation(Location(
       name: name,
       latitude: latLng.latitude,
       longitude: latLng.longitude,
-      timestamp: DateTime.now(),
+      timestamp: trimmed,
       checkInLimit: checkInLimit,
       checkOutLimit: checkOutLimit,
       address: address.toString(),
