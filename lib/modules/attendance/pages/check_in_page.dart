@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:absensi_app/features/attendances/repositories/attendance_repository.dart';
 import 'package:absensi_app/features/locations/models/location_model.dart';
@@ -30,7 +31,7 @@ class CheckInPageState extends State<CheckInPage> {
   final attendanceRepository = AttendanceRepository();
 
   final RxSet<Marker> _markers = <Marker>{}.obs;
-  final List<Location> locations = <Location>[].obs;
+  final RxList<Location> locations = <Location>[].obs;
   final RxSet<Circle> _circles = <Circle>{}.obs;
   var isLoading = true.obs;
 
@@ -43,16 +44,22 @@ class CheckInPageState extends State<CheckInPage> {
     isCheckIn: true,
   );
   Future<void> getLocation() async {
+    locations.clear();
     isLoading.value = true;
 
-    await locationRepository.getLocations().then(
-      (value) {
-        if (prefs.currentLocationId != null) {
-          locations.add(value.firstWhere((element) =>
-              element.timestamp.toString() == prefs.currentLocationId));
-        }
-      },
-    );
+    try {
+      await locationRepository.getLocations().then(
+        (value) {
+          if (prefs.currentLocationId != null) {
+            locations.add(value.firstWhere((element) =>
+                element.timestamp.toString() == prefs.currentLocationId));
+          }
+        },
+      );
+    } catch (e) {
+      log(e.toString());
+    }
+
     isLoading.value = false;
   }
 
@@ -70,6 +77,8 @@ class CheckInPageState extends State<CheckInPage> {
 
   @override
   Widget build(BuildContext context) {
+    // print('currentLocationId : ${locations[0].name}');
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blueAccent,
@@ -103,7 +112,9 @@ class CheckInPageState extends State<CheckInPage> {
                     zoomControlsEnabled: false,
                     myLocationEnabled: true,
                     onMapCreated: (GoogleMapController controller) {
-                      _controller.complete(controller);
+                      if (!_controller.isCompleted) {
+                        _controller.complete(controller);
+                      }
                     },
                     markers: _markers,
                     circles: _circles,

@@ -27,13 +27,10 @@ class LocationRepository {
     var box = await Hive.openBox<Location>(_boxName);
     List<Location> locations = box.values.toList();
 
-    print('currentLocationId : ${locations.isNotEmpty}');
-    print('currentLocationId : ${prefs.currentLocationId}');
-
     if (prefs.currentLocationId == null && locations.isNotEmpty) {
       prefs.setCurrentLocationId(locations[0].timestamp.toString());
     }
-    await box.close();
+    // await box.close();
     return locations;
   }
 

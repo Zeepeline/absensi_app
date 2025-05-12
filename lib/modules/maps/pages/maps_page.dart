@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:absensi_app/features/locations/models/location_model.dart';
 import 'package:absensi_app/features/locations/repositories/locations_repository.dart';
+import 'package:absensi_app/modules/attendance/controller/check_page_controller.dart';
 import 'package:absensi_app/modules/home/controller/home_page_controller.dart';
 import 'package:absensi_app/modules/maps/widgets/add_new_place_modal.dart';
 import 'package:absensi_app/modules/maps/widgets/location_information_modal.dart';
@@ -251,7 +252,6 @@ class MapPageState extends State<MapPage> {
                               },
                             );
                           });
-                          Get.find<HomePageController>().refresh();
                         },
                         backgroundColor: Colors.green,
                         child: Icon(
@@ -296,6 +296,12 @@ class MapPageState extends State<MapPage> {
       checkOutLimit: checkOutLimit,
       address: address.toString(),
     ));
+
+    Get.find<HomePageController>().refresh();
+    if (Get.isRegistered<CheckPageController>()) {
+      Get.find<CheckPageController>().refreshCheckIn();
+      Get.find<CheckPageController>().refreshCheckOut();
+    }
 
     getLocation();
   }

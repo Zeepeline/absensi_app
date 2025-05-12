@@ -232,6 +232,7 @@ class MyHomePageState extends State<MyHomePage>
       child: ListView.builder(
         itemCount: list.length,
         shrinkWrap: true,
+        reverse: true,
         physics: const BouncingScrollPhysics(),
         itemBuilder: (context, index) {
           final Attendance loc = list[index];
@@ -380,11 +381,14 @@ class MyHomePageState extends State<MyHomePage>
                 child: AttendanceStatusCard(
                   title: 'Status',
                   isAbsent: true,
-                  location: attandancesCheckIn[0].isAccepted
-                      ? 'Terlambat'
-                      : 'Sudah Absen',
+                  location: attandancesCheckIn[attandancesCheckIn.length - 1]
+                          .isAccepted
+                      ? 'Sudah Absen - ${DateFormat.Hm().format(attandancesCheckIn[attandancesCheckIn.length - 1].timestamp)}'
+                      : 'Terlambat - ${DateFormat.Hm().format(attandancesCheckIn[attandancesCheckIn.length - 1].timestamp)}',
                   checkInTime: DateTime.now(),
                   icon: Icons.check_circle,
+                  isLate: !attandancesCheckIn[attandancesCheckIn.length - 1]
+                      .isAccepted,
                 ),
               ),
               Gap(8),
@@ -392,7 +396,9 @@ class MyHomePageState extends State<MyHomePage>
                 child: AttendanceStatusCard(
                   title: 'Waktu',
                   isAbsent: true,
-                  location: dateFormat.format(locations[0].timestamp),
+                  location: dateFormat.format(
+                      attandancesCheckIn[attandancesCheckIn.length - 1]
+                          .timestamp),
                   checkInTime: DateTime.now(),
                   icon: Icons.access_time,
                 ),
@@ -406,9 +412,10 @@ class MyHomePageState extends State<MyHomePage>
                 child: AttendanceStatusCard(
                   title: 'Nama Tempat',
                   isAbsent: true,
-                  location: attandancesCheckIn[0].name,
+                  location:
+                      attandancesCheckIn[attandancesCheckIn.length - 1].name,
                   checkInTime: DateTime.now(),
-                  icon: Icons.location_on,
+                  icon: Remix.home_3_fill,
                 ),
               ),
             ],
@@ -420,7 +427,8 @@ class MyHomePageState extends State<MyHomePage>
                 child: AttendanceStatusCard(
                   title: 'Alamat',
                   isAbsent: true,
-                  location: attandancesCheckIn[0].address,
+                  location:
+                      attandancesCheckIn[attandancesCheckIn.length - 1].address,
                   checkInTime: DateTime.now(),
                   icon: Icons.location_on,
                 ),

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:absensi_app/features/attendances/repositories/attendance_repository.dart';
 import 'package:absensi_app/features/locations/models/location_model.dart';
@@ -6,7 +7,6 @@ import 'package:absensi_app/features/locations/repositories/locations_repository
 import 'package:absensi_app/modules/attendance/contents/empty_setup_content.dart';
 import 'package:absensi_app/modules/attendance/controller/check_page_controller.dart';
 import 'package:absensi_app/modules/attendance/widgets/information_detail_card.dart';
-import 'package:absensi_app/modules/attendance/widgets/show_set_location_dialog.dart';
 import 'package:absensi_app/shared/cores/constants/colorpedia.dart';
 import 'package:absensi_app/shared/cores/services/attandance_service.dart';
 import 'package:absensi_app/shared/cores/services/location_controller.dart';
@@ -33,7 +33,7 @@ class CheckOutPageState extends State<CheckOutPage> {
   final attendanceRepository = AttendanceRepository();
 
   final RxSet<Marker> _markers = <Marker>{}.obs;
-  final List<Location> locations = <Location>[].obs;
+  final RxList<Location> locations = <Location>[].obs;
   final RxSet<Circle> _circles = <Circle>{}.obs;
   var isLoading = true.obs;
 
@@ -47,20 +47,26 @@ class CheckOutPageState extends State<CheckOutPage> {
   );
 
   Future<void> refresh() async {
-    setState(() {});
+    getLocation();
   }
 
   Future<void> getLocation() async {
+    locations.clear();
     isLoading.value = true;
 
-    await locationRepository.getLocations().then(
-      (value) {
-        if (prefs.currentLocationId != null) {
-          locations.add(value.firstWhere((element) =>
-              element.timestamp.toString() == prefs.currentLocationId));
-        }
-      },
-    );
+    try {
+      await locationRepository.getLocations().then(
+        (value) {
+          if (prefs.currentLocationId != null) {
+            locations.add(value.firstWhere((element) =>
+                element.timestamp.toString() == prefs.currentLocationId));
+          }
+        },
+      );
+    } catch (e) {
+      log(e.toString());
+    }
+
     isLoading.value = false;
   }
 
@@ -81,10 +87,6 @@ class CheckOutPageState extends State<CheckOutPage> {
       ),
       body: Obx(() {
         final position = locationController.currentPosition.value;
-
-        if (prefs.currentLocationId == null) {
-          showLocationDialog();
-        }
 
         if (isLoading.value) {
           return const Center(child: CircularProgressIndicator());
@@ -112,7 +114,9 @@ class CheckOutPageState extends State<CheckOutPage> {
                     zoomControlsEnabled: false,
                     myLocationEnabled: true,
                     onMapCreated: (GoogleMapController controller) {
-                      _controller.complete(controller);
+                      if (!_controller.isCompleted) {
+                        _controller.complete(controller);
+                      }
                     },
                     markers: _markers,
                     circles: _circles,

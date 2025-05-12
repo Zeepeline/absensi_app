@@ -174,7 +174,7 @@ void showLocationInformationBottomSheet(
                     ElevatedButton(
                         onPressed: () {
                           onDelete();
-                          Get.back();
+                          // Get.back();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,

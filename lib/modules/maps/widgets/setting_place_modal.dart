@@ -1,11 +1,11 @@
-import 'dart:developer';
-
 import 'package:absensi_app/features/locations/models/location_model.dart';
 import 'package:absensi_app/features/locations/repositories/locations_repository.dart';
 import 'package:absensi_app/shared/cores/constants/app_text_style.dart';
 import 'package:absensi_app/shared/cores/constants/colorpedia.dart';
 import 'package:absensi_app/shared/cores/utils/prefs_utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gap/gap.dart';
 import 'package:get/get.dart';
 
 void showLocationList({
@@ -16,8 +16,6 @@ void showLocationList({
   required VoidCallback onDelete,
   required VoidCallback onSetMain,
 }) {
-  log('time : ${locations[0].timestamp}');
-
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -36,9 +34,18 @@ void showLocationList({
             child: Obx(() {
               if (locations.isEmpty) {
                 return Center(
-                    child: Text(
-                  'Belum ada lokasi yang ditambahkan',
-                  style: AppTextStyles.bodyMediumRegular,
+                    child: Column(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/vectors/empty_vector.svg',
+                      width: 250,
+                    ),
+                    Gap(16),
+                    Text(
+                      'Belum ada lokasi yang ditambahkan',
+                      style: AppTextStyles.bodyMediumRegular,
+                    ),
+                  ],
                 ));
               }
               return Column(

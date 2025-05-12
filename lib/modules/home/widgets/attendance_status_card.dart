@@ -9,6 +9,7 @@ class AttendanceStatusCard extends StatelessWidget {
   final String location; // Lokasi absensi (misalnya, kota atau tempat)
   final String title;
   final IconData icon;
+  final bool? isLate;
 
   const AttendanceStatusCard({
     super.key,
@@ -17,6 +18,7 @@ class AttendanceStatusCard extends StatelessWidget {
     required this.location,
     required this.title,
     required this.icon,
+    this.isLate,
   });
 
   @override
@@ -46,7 +48,14 @@ class AttendanceStatusCard extends StatelessWidget {
             ],
           ),
           Gap(8),
-          Text(location, style: AppTextStyles.bodyMediumMedium),
+          Text(location,
+              style: AppTextStyles.bodyMediumMedium.copyWith(
+                color: isLate == null
+                    ? null
+                    : isLate == true
+                        ? AppColors.errorBaseDark
+                        : AppColors.successBaseDark,
+              )),
         ],
       ),
     );

@@ -37,6 +37,14 @@ class AddLocationController extends GetxController {
     notesController.clear();
     checkInLimitController.clear();
     checkOutLimitController.clear();
+
+    checkInLimit.value = null;
+    checkOutLimit.value = null;
+
+    checkInDateTime.value = DateTime.now();
+    checkOutDateTime.value = DateTime.now();
+
+    isFormValid.value = false;
   }
 
   @override
